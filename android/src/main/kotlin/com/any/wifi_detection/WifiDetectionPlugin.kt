@@ -1,6 +1,5 @@
 package com.any.wifi_detection
 
-import androidx.annotation.NonNull
 import com.any.wifi_detection.handler.SearchDevicesHandlerImpl
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin
@@ -25,7 +24,7 @@ class WifiDetectionPlugin : FlutterPlugin, MethodCallHandler {
         channel.setMethodCallHandler(this)
         searchChannel =
             EventChannel(flutterPluginBinding.binaryMessenger, "wifi_detection_search_devices")
-        searchChannel.setStreamHandler(SearchDevicesHandlerImpl())
+        searchChannel.setStreamHandler(SearchDevicesHandlerImpl(flutterPluginBinding.applicationContext))
     }
 
     override fun onMethodCall(call: MethodCall, result: Result) {

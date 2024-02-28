@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:flutter/services.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:wifi_detection/wifi_detection.dart';
 
 void main() {
@@ -33,17 +34,17 @@ class _MyAppState extends State<MyApp> {
     try {
       platformVersion = await _wifiDetectionPlugin.getPlatformVersion() ?? 'Unknown platform version';
 
-      _wifiDetectionPlugin.searchWiFiDetectionStream().listen(
-        (event) {
+      var locationPermissionStatus = await Permission.locationWhenInUse.request();
+      if (locationPermissionStatus.isGranted) {
+        await Future<void>.delayed(Duration(seconds: 2));
+        _wifiDetectionPlugin.searchWiFiDetectionStream().listen((event) {
           print("searchWiFiDetectionStreamEvent:$event");
-        },
-        onError: (error) {
+        }, onError: (error) {
           print("searchWiFiDetectionStreamError:$error");
-        },
-        onDone: () {
+        }, onDone: () {
           print("searchWiFiDetectionStreamDone");
-        }
-      );
+        });
+      }
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
