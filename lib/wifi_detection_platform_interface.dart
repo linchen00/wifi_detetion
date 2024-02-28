@@ -26,4 +26,8 @@ abstract class WifiDetectionPlatform extends PlatformInterface {
   Future<String?> getPlatformVersion() {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
+
+  Stream<String> searchWiFiDetectionStream() {
+    throw UnimplementedError('platformVersion() has not been implemented.');
+  }
 }

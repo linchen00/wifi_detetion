@@ -31,8 +31,19 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _wifiDetectionPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _wifiDetectionPlugin.getPlatformVersion() ?? 'Unknown platform version';
+
+      _wifiDetectionPlugin.searchWiFiDetectionStream().listen(
+        (event) {
+          print("searchWiFiDetectionStreamEvent:$event");
+        },
+        onError: (error) {
+          print("searchWiFiDetectionStreamError:$error");
+        },
+        onDone: () {
+          print("searchWiFiDetectionStreamDone");
+        }
+      );
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }

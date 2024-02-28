@@ -9,9 +9,18 @@ class MethodChannelWifiDetection extends WifiDetectionPlatform {
   @visibleForTesting
   final methodChannel = const MethodChannel('wifi_detection');
 
+  @visibleForTesting
+  final searchDevicesEventChannel = const EventChannel('wifi_detection_search_devices');
+
+
   @override
   Future<String?> getPlatformVersion() async {
     final version = await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
+  }
+
+  @override
+  Stream<String> searchWiFiDetectionStream() {
+    return searchDevicesEventChannel.receiveBroadcastStream().map((event) => event.toString());
   }
 }

@@ -10,6 +10,12 @@ class MockWifiDetectionPlatform
 
   @override
   Future<String?> getPlatformVersion() => Future.value('42');
+
+  @override
+  Stream<String> searchWiFiDetectionStream() {
+    // TODO: implement searchWiFiDetectionStream
+    throw UnimplementedError();
+  }
 }
 
 void main() {
