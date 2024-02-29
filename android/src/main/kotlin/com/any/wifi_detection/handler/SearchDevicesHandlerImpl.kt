@@ -1,7 +1,6 @@
 package com.any.wifi_detection.handler
 
 import android.content.Context
-import android.os.AsyncTask
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
@@ -32,7 +31,7 @@ class SearchDevicesHandlerImpl(context: Context) : EventChannel.StreamHandler {
             events?.endOfStream()
             return
         }
-
+        
         val numSubnetHosts: Int = wireless.numberOfHostsInWifiSubnet
 
         val localIp = wireless.getInternalWifiIpAddress(Integer::class.java)
@@ -46,7 +45,8 @@ class SearchDevicesHandlerImpl(context: Context) : EventChannel.StreamHandler {
         val ipv4 = 192  // 你的 IPv4 地址
         val cidr = 24    // CIDR 前缀长度
         val timeout = 5000  // 超时时间（毫秒）
-        ScanHostsAsyncTask(events).scanHosts(ipv4, wifiSubnet, timeout,mainHandler)
+        ScanHostsAsyncTask(events)
+            .scanHosts(ipv4, wifiSubnet, timeout,mainHandler)
 
 
         // 模拟发送Stream数据

@@ -265,7 +265,6 @@ public class Wireless {
      * @return Connectivity manager
      */
     private ConnectivityManager getConnectivityManager() {
-
         return (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
     }
 
