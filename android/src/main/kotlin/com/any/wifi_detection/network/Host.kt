@@ -1,13 +1,15 @@
 package com.any.wifi_detection.network
 
+import kotlinx.serialization.Serializable
 import java.net.InetAddress
 
+@Serializable
 data class Host(val ip: String, val mac: String) {
 
-    public var address: ByteArray = InetAddress.getByName(ip).address
+    var address: ByteArray = InetAddress.getByName(ip).address
 
 
-    public var hostname: String? = null
+    var hostname: String? = null
         set(value) {
             field = if (value != null && (value.isEmpty() || value.endsWith(".local"))) {
                 value.substring(0, value.length - 6)
@@ -17,7 +19,7 @@ data class Host(val ip: String, val mac: String) {
 
         }
 
-    public val vendor: String? = null
+    val vendor: String? = null
 
 
     override fun toString(): String {
@@ -26,3 +28,4 @@ data class Host(val ip: String, val mac: String) {
 
 
 }
+

@@ -2,12 +2,14 @@ package com.any.wifi_detection.async
 
 import android.os.Handler
 import android.os.ParcelFileDescriptor
+import android.util.Log
 import android.util.Pair
 import com.any.wifi_detection.network.Host
 import com.any.wifi_detection.network.MDNSResolver
 import com.any.wifi_detection.network.NetBIOSResolver
 import com.any.wifi_detection.network.Resolver
 import com.any.wifi_detection.runnable.ScanHostsRunnable
+import com.google.gson.Gson
 import io.flutter.plugin.common.EventChannel.EventSink
 import java.io.BufferedReader
 import java.io.IOException
@@ -98,7 +100,7 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?) {
             } catch (e: IOException) {
                 executor.shutdown()
                 eventSink?.endOfStream()
-                return;
+                return
             }
 
             val neighborLine = line.split(Regex("\\s+"))
@@ -170,7 +172,7 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?) {
                         MDNSResolver(lanSocketTimeout)
                     )
                     if (isResolve) {
-
+                        Log.d(tag, "fetchAndProcessArpEntries: ${ Gson().toJson(host)}")
                         return@execute
                     }
 
@@ -195,14 +197,14 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?) {
         val add = try {
             InetAddress.getByName(ip)
         } catch (e: UnknownHostException) {
-            resolver.close();
+            resolver.close()
             return false
         }
         val name = try {
             resolver.resolve(add)
         } catch (e: IOException) {
-            resolver.close();
-            return false;
+            resolver.close()
+            return false
         }
         resolver.close()
         if ((name != null) && !name.first().isNullOrBlank()) {
