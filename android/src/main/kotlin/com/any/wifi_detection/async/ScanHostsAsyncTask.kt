@@ -31,42 +31,39 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?) {
 
     private val tag = ScanHostsAsyncTask::class.java.simpleName
 
-    private val NEIGHBOR_INCOMPLETE = "INCOMPLETE"
-    private val NEIGHBOR_FAILED = "FAILED"
+    private val neighborIncomplete = "INCOMPLETE"
+    private val neighborFailed = "FAILED"
 
     fun scanHosts(ipv4: Int, cidr: Int, timeout: Int, mainHandler: Handler?) {
 
         // 创建一个固定大小的线程池，其中包含多个线程
         val executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())
+        val hostBits = 32.0 - cidr
+        val netmask = -0x1 shr 32 - cidr shl 32 - cidr
+        val numberOfHosts = Math.pow(2.0, hostBits).toInt() - 2
+        val firstAddr = (ipv4 and netmask) + 1
+
+        val scanThreads = hostBits.toInt()
+        val chunk = Math.ceil(numberOfHosts.toDouble() / scanThreads).toInt()
+        var previousStart = firstAddr
+        var previousStop = firstAddr + (chunk - 2)
+
+        // 提交任务给线程池执行
+        for (i in 0 until scanThreads) {
+            executor.execute(
+                ScanHostsRunnable(previousStart, previousStop, timeout)
+            )
+            previousStart = previousStop + 1
+            previousStop = previousStart + (chunk - 1)
+        }
+
+        // 关闭线程池
+        executor.shutdown()
         try {
-            val hostBits = 32.0 - cidr
-            val netmask = -0x1 shr 32 - cidr shl 32 - cidr
-            val numberOfHosts = Math.pow(2.0, hostBits).toInt() - 2
-            val firstAddr = (ipv4 and netmask) + 1
-            val SCAN_THREADS = hostBits.toInt()
-            val chunk = Math.ceil(numberOfHosts.toDouble() / SCAN_THREADS).toInt()
-            var previousStart = firstAddr
-            var previousStop = firstAddr + (chunk - 2)
-
-            // 提交任务给线程池执行
-            for (i in 0 until SCAN_THREADS) {
-                executor.execute(
-                    ScanHostsRunnable(previousStart, previousStop, timeout)
-                )
-                previousStart = previousStop + 1
-                previousStop = previousStart + (chunk - 1)
-            }
-
-            // 关闭线程池
-            executor.shutdown()
-            // 等待线程池中的任务执行完成，最多等待5分钟
-            if (!executor.awaitTermination(5, TimeUnit.MINUTES)) {
-                // 如果超时，立即中断所有任务
-                executor.shutdownNow()
-            }
+            executor.awaitTermination(5, TimeUnit.MINUTES)
+            executor.shutdownNow()
         } catch (e: InterruptedException) {
-            // 捕获中断异常
-            e.printStackTrace()
+            return
         }
         fetchAndProcessArpEntries()
     }
@@ -129,7 +126,7 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?) {
 
             // Determine if the ARP entry is valid.
             // https://github.com/sivasankariit/iproute2/blob/master/ip/ipneigh.c
-            if (NEIGHBOR_FAILED != state && NEIGHBOR_INCOMPLETE != state) {
+            if (neighborFailed != state && neighborIncomplete != state) {
                 pairs.add(Pair<String, String>(ip, macAddress))
             }
         }

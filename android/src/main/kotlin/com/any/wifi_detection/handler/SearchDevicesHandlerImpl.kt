@@ -3,7 +3,6 @@ package com.any.wifi_detection.handler
 import android.content.Context
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import com.any.wifi_detection.async.ScanHostsAsyncTask
 import com.any.wifi_detection.network.Wireless
 import io.flutter.plugin.common.EventChannel
@@ -20,33 +19,27 @@ class SearchDevicesHandlerImpl(context: Context) : EventChannel.StreamHandler {
 
     private val mainHandler = Handler(Looper.getMainLooper())
     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-        if (!wireless.isEnabled) {
+        if (!wireless.isEnabled()) {
             events?.error("1", "Wireless is not enabled", null)
             events?.endOfStream()
             return
         }
 
-        if (!wireless.isConnectedWifi) {
+        if (!wireless.isConnectedWifi()) {
             events?.error("2", "Wireless is not connected", null)
             events?.endOfStream()
             return
         }
-        
-        val numSubnetHosts: Int = wireless.numberOfHostsInWifiSubnet
 
-        val localIp = wireless.getInternalWifiIpAddress(Integer::class.java)
 
-        val wifiSubnet = wireless.internalWifiSubnet
+        val localIp = wireless.getInternalWifiIpAddress() // 获取内网IP
 
-        Log.d("numSubnetHosts", "numSubnetHosts: $numSubnetHosts")
-        Log.d("internalWifiIpAddress", "internalWifiIpAddress: $localIp")
-        Log.d("wifiSubnet", "wifiSubnet: $wifiSubnet")
+        val wifiSubnet = wireless.getInternalWifiSubnet() // CIDR 前缀长度
 
-        val ipv4 = 192  // 你的 IPv4 地址
-        val cidr = 24    // CIDR 前缀长度
+
         val timeout = 5000  // 超时时间（毫秒）
         ScanHostsAsyncTask(events)
-            .scanHosts(ipv4, wifiSubnet, timeout,mainHandler)
+            .scanHosts(localIp, wifiSubnet, timeout, mainHandler)
 
 
         // 模拟发送Stream数据
