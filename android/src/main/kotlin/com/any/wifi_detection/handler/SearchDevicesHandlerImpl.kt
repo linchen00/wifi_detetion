@@ -38,24 +38,9 @@ class SearchDevicesHandlerImpl(context: Context) : EventChannel.StreamHandler {
 
 
         val timeout = 5000  // 超时时间（毫秒）
-        ScanHostsAsyncTask(events)
-            .scanHosts(localIp, wifiSubnet, timeout, mainHandler)
-
-
-        // 模拟发送Stream数据
-        val timer = Timer()
-        timer.schedule(object : TimerTask() {
-            private var counter = 0
-            override fun run() {
-                mainHandler.post {
-                    events?.success(counter++) // 发送事件到Flutter端
-                    if (counter == 10) {
-                        timer.cancel()
-                        events?.endOfStream() // 结束Stream
-                    }
-                }
-            }
-        }, 0, 1000)
+        ScanHostsAsyncTask(events, mainHandler)
+                .scanHosts(localIp, wifiSubnet, timeout)
+        events?.endOfStream() // 结束Stream
     }
 
     override fun onCancel(arguments: Any?) {
