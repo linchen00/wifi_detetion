@@ -6,8 +6,6 @@ import android.os.Looper
 import com.any.wifi_detection.async.ScanHostsAsyncTask
 import com.any.wifi_detection.network.Wireless
 import io.flutter.plugin.common.EventChannel
-import java.util.Timer
-import java.util.TimerTask
 
 
 class SearchDevicesHandlerImpl(context: Context) : EventChannel.StreamHandler {

@@ -5,10 +5,8 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.wifi.WifiInfo
 import android.net.wifi.WifiManager
-import java.net.Inet4Address
 import java.net.InetAddress
 import java.net.NetworkInterface
-import java.net.SocketException
 import java.nio.ByteOrder
 
 class Wireless(private val context: Context) {
@@ -106,31 +104,6 @@ class Wireless(private val context: Context) {
     }
 
     /**
-     * Gets the device's internal LAN IP address associated with the cellular network
-     *
-     * @return Local cellular network LAN IP address
-     */
-    fun getInternalMobileIpAddress(): String? {
-        try {
-            val networkInterfaces = NetworkInterface.getNetworkInterfaces()
-            while (networkInterfaces != null && networkInterfaces.hasMoreElements()) {
-                val networkInterface = networkInterfaces.nextElement()
-                val inetAddresses = networkInterface.getInetAddresses()
-                while (inetAddresses.hasMoreElements()) {
-                    val inetAddress = inetAddresses.nextElement()
-                    if (!inetAddress.isLoopbackAddress && inetAddress is Inet4Address) {
-                        return inetAddress.getHostAddress()
-                    }
-                }
-            }
-        } catch (ex: SocketException) {
-            return null
-        }
-
-        return null
-    }
-
-    /**
      * Gets the device's internal LAN IP address associated with the WiFi network
      *
      * @return Local WiFi network LAN IP address
@@ -193,8 +166,8 @@ class Wireless(private val context: Context) {
      *
      * @return Wireless address
      */
-    fun getWifiInetAddress(): InetAddress? {
-        val ipAddress = getInternalMobileIpAddress() ?: return null
+    private fun getWifiInetAddress(): InetAddress? {
+        val ipAddress = getInternalWifiIpString()
         return InetAddress.getByName(ipAddress)
     }
 
