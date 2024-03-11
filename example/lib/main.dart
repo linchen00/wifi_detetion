@@ -34,25 +34,24 @@ class _MyAppState extends State<MyApp> {
     try {
       platformVersion = await _wifiDetectionPlugin.getPlatformVersion() ?? 'Unknown platform version';
 
-      _wifiDetectionPlugin.searchWiFiDetectionStream().listen((event) {
-        print("searchWiFiDetectionStreamEvent:$event");
-      }, onError: (error) {
-        print("searchWiFiDetectionStreamError:$error");
-      }, onDone: () {
-        print("searchWiFiDetectionStreamDone");
-      });
+      // _wifiDetectionPlugin.searchWiFiDetectionStream().listen((event) {
+      //   print("searchWiFiDetectionStreamEvent:$event");
+      // }, onError: (error) {
+      //   print("searchWiFiDetectionStreamError:$error");
+      // }, onDone: () {
+      //   print("searchWiFiDetectionStreamDone");
+      // });
 
-      // var locationPermissionStatus = await Permission.locationWhenInUse.request();
-      // if (locationPermissionStatus.isGranted) {
-      //   await Future<void>.delayed(Duration(seconds: 2));
-      //   _wifiDetectionPlugin.searchWiFiDetectionStream().listen((event) {
-      //     print("searchWiFiDetectionStreamEvent:$event");
-      //   }, onError: (error) {
-      //     print("searchWiFiDetectionStreamError:$error");
-      //   }, onDone: () {
-      //     print("searchWiFiDetectionStreamDone");
-      //   });
-      // }
+      var locationPermissionStatus = await Permission.locationWhenInUse.request();
+      if (locationPermissionStatus.isGranted) {
+        _wifiDetectionPlugin.searchWiFiDetectionStream().listen((event) {
+          print("searchWiFiDetectionStreamEvent:$event");
+        }, onError: (error) {
+          print("searchWiFiDetectionStreamError:$error");
+        }, onDone: () {
+          print("searchWiFiDetectionStreamDone");
+        });
+      }
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }

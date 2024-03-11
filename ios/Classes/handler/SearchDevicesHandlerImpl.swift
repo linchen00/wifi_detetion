@@ -11,14 +11,29 @@ import Network
 
 
 class SearchDevicesHandlerImpl: NSObject, FlutterStreamHandler {
+    
+   let wireless =  Wireless()
     // Handle events on the main thread.
     var timer = Timer()
     // Declare our eventSink, it will be initialized later
-    private var eventSink: FlutterEventSink?
+//    private var eventSink: FlutterEventSink?
     
     func onListen(withArguments arguments: Any?, eventSink: @escaping FlutterEventSink) -> FlutterError? {
+        
+        guard wireless.isWiFiConnected()else{
+            return FlutterError(code: "2", message: "Wireless is not connected", details: nil)
+        }
+        let ssid = wireless.getSSID()
+        let bssid = wireless.getBSSID()
+        let wifiIp = wireless.getInternalWifiIpString()
+        let netmask = wireless.getInternalWifiSubnetString()
+        print("IP: \(wifiIp), Netmask: \(netmask)")
+        
+        print("ssid:\(ssid),bssid:\(bssid),wifiIp:\(wifiIp)")
+        
+        
         print("onListen......")
-        self.eventSink = eventSink
+
         
         self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
             let dateFormat = DateFormatter()
@@ -27,16 +42,14 @@ class SearchDevicesHandlerImpl: NSObject, FlutterStreamHandler {
             eventSink(time)
             eventSink(FlutterEndOfEventStream)
         })
-        
-        let monitor = NWPathMonitor()
-        monitor.currentPath.usesInterfaceType(.wifi)
+    
         
         
         return nil
     }
     
     func onCancel(withArguments arguments: Any?) -> FlutterError? {
-        eventSink = nil
+        
         return nil
     }
 }
