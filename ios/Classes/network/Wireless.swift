@@ -9,12 +9,13 @@ import Foundation
 import Reachability
 import SystemConfiguration.CaptiveNetwork
 import SystemConfiguration
-
+import Network
 
 
 struct NetInfo {
     let ip: String
     let netmask: String
+    let cidr: Int
 }
 
 
@@ -84,6 +85,10 @@ class Wireless{
         return getNetInfo()?.ip
     }
     
+    func getInternalWifiCIDR() -> Int? {
+        return getNetInfo()?.cidr
+    }
+    
     func getInternalWifiIpAddress() -> Int?{
         var ipAddressInt: Int?
         
@@ -141,9 +146,9 @@ class Wireless{
                addr.sa_family == UInt8(AF_INET),
                String(cString: current.pointee.ifa_name) == "en0",
                let address = getAddress(from: &addr),
-               let netmask = getNetmask(from: &(current.pointee.ifa_netmask.pointee)){
-                
-                return NetInfo(ip: address, netmask: netmask)
+               let netmask = getNetmask(from: &(current.pointee.ifa_netmask.pointee)),
+               let cidr = calculateCIDR(from: netmask){
+                return NetInfo(ip: address, netmask: netmask,cidr: cidr)
             }
             ptr = ptr!.pointee.ifa_next
             
@@ -168,6 +173,27 @@ class Wireless{
         }
         return String(cString: netmaskName)
     }
+    
+    private func calculateCIDR(from netmask: String) -> Int? {
+        let netmaskComponents = netmask.split(separator: ".")
+        guard netmaskComponents.count == 4 else {
+            return nil
+        }
+
+        var cidr: Int = 0
+        for component in netmaskComponents {
+            if let byte = UInt8(component) {
+                let binaryRepresentation = String(byte, radix: 2)
+                let numberOfOnes = binaryRepresentation.filter { $0 == "1" }.count
+                cidr += numberOfOnes
+            } else {
+                return nil
+            }
+        }
+
+        return cidr
+    }
+    
     
     
     
