@@ -1,13 +1,7 @@
 package com.any.wifi_detection.runnable
 
-import android.text.format.DateUtils
-import android.util.Log
 import com.any.wifi_detection.async.ScanHostsAsyncTask
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import java.io.Closeable
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -17,7 +11,7 @@ class ScanHostsRunnable(
         private val start: Int,
         private val stop: Int,
         private val timeout: Int,
-) : Runnable {
+) : Runnable,Closeable {
 
     private val tag = ScanHostsAsyncTask::class.java.simpleName
 
@@ -47,5 +41,9 @@ class ScanHostsRunnable(
         val byte3 = (index shr 8) and 0xFF
         val byte4 = index and 0xFF
         return "$byte1.$byte2.$byte3.$byte4"
+    }
+
+    override fun close() {
+        socket.close()
     }
 }

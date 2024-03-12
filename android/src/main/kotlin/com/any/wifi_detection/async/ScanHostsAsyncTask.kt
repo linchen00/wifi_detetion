@@ -66,6 +66,7 @@ class ScanHostsAsyncTask(private val eventSink: EventSink?, private val mainHand
                                 launch {
                                     val scanHostsRunnable = ScanHostsRunnable(previousStart + chunk * i, previousStop + chunk * i, timeout)
                                     scanHostsRunnable.run()
+                                    scanHostsRunnable.close()
                                 }
                                 previousStart = previousStop + 1
                                 previousStop = previousStart + (chunk - 1)
