@@ -5,9 +5,11 @@ PODS:
   - permission_handler_apple (9.3.0):
     - Flutter
   - ReachabilitySwift (5.0.0)
+  - TOSMBClient (1.0.8)
   - wifi_detection (0.0.1):
     - Flutter
     - ReachabilitySwift
+    - TOSMBClient
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
@@ -18,6 +20,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - ReachabilitySwift
+    - TOSMBClient
 
 EXTERNAL SOURCES:
   Flutter:
@@ -34,7 +37,8 @@ SPEC CHECKSUMS:
   integration_test: 13825b8a9334a850581300559b8839134b124670
   permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  wifi_detection: 66a27f9d7a357fdc98ddf958a0a339bffed2b88b
+  TOSMBClient: 8884ede03ae70e6087962433fda22fb6b4b8c7f8
+  wifi_detection: 00a98a07c0555e4293f2b05cd41f1fbfb26d2f56
 
 PODFILE CHECKSUM: bae2615e92da2a48bc34aaa862eb8d2b10bf43c5
 
