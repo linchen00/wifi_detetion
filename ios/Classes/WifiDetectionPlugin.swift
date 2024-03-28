@@ -18,8 +18,8 @@ public class WifiDetectionPlugin: NSObject, FlutterPlugin {
 //            let parser = MDNSPacketParser()
 //            parser.startListening()
             let networkTool =  NetworkTool()
-            networkTool.udpBroadcast(ip: "192.168.1.5")
-            Thread.sleep(forTimeInterval: 30)
+            networkTool.udpBroadcast(ip: "192.168.0.118")
+//            Thread.sleep(forTimeInterval: 30)
             print("finish")
         default:
             result(FlutterMethodNotImplemented)

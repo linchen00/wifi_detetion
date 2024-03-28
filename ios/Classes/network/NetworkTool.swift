@@ -13,14 +13,23 @@ import Network
 class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
     
     let udpTimeOut:TimeInterval = TimeInterval(40);
-    let mdnsIP:String = "255.255.255.255";
+    let mdnsIP:String = "224.0.0.251";
 
     let mdnsPort:UInt16 = 5353;
     
     let group = DispatchGroup()
     /// UDP
     private lazy var udp: GCDAsyncUdpSocket = {
-        return GCDAsyncUdpSocket(delegate: self, delegateQueue: .main)
+        let socket = GCDAsyncUdpSocket(delegate: self, delegateQueue: .main)
+//        socket.setIPv4Enabled(true)
+//        socket.setPreferIPv4()
+//        socket.setIPv6Enabled(false)
+        print("ipv4:\(socket.isIPv4Preferred())")
+        print("ipv4:\(socket.isIPv4Enabled())")
+        print("ipv6:\(socket.isIPv6Preferred())")
+        print("ipv6:\(socket.isIPv6Enabled())")
+        return socket
+        
     }()
     
     /// 指定设备发送广播
@@ -56,7 +65,7 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
         
         print("data:\(data)")
         
-        self.udp.send(Data(data), toHost: ip, port: mdnsPort, withTimeout: self.udpTimeOut, tag: 0)
+        self.udp.send(Data(data), toHost: mdnsIP, port: mdnsPort, withTimeout: self.udpTimeOut, tag: 0)
         group.enter()
     }
     /// UDP 默认设置
@@ -65,9 +74,9 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
         if self.udp.localPort() != self.mdnsPort {//self.udpPort为当前绑定的端口，判断是否已经绑定过
             do {
                 try self.udp.enableReusePort(true)
-                try self.udp.bind(toPort: 5353)
+                try self.udp.bind(toPort: mdnsPort)
                 try self.udp.enableBroadcast(true)
-//                try self.udp.joinMulticastGroup(mdnsIP)
+                try self.udp.joinMulticastGroup(mdnsIP)
                 try self.udp.beginReceiving()
             } catch let error {
                 NSLog("udp失败\(error)")
