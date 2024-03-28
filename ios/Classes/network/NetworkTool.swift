@@ -122,14 +122,16 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
     }
     
     // 广播
+    func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
+        print("Did send DNS request")
+    }
+    
     func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
-        print("udpSocket")
-        //因为根据端口广播可能会搜索到非目标设备，所以根据UDP发送的data来获取相应的回应，根据receiveData来筛选ip
+        // 处理接收到的 DNS 响应消息
+        print("Did receive DNS response: \(data)")
         let ip = GCDAsyncUdpSocket.host(fromAddress: address)!
         let port = GCDAsyncUdpSocket.port(fromAddress: address)
         print(ip, port)
-//        group.leave()
-        //处理data
     }
 
 }
