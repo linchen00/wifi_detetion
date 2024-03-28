@@ -15,6 +15,12 @@ public class WifiDetectionPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "getPlatformVersion":
             result("iOS " + UIDevice.current.systemVersion)
+//            let parser = MDNSPacketParser()
+//            parser.startListening()
+            let networkTool =  NetworkTool()
+            networkTool.udpBroadcast(ip: "192.168.1.5")
+            Thread.sleep(forTimeInterval: 30)
+            print("finish")
         default:
             result(FlutterMethodNotImplemented)
         }

@@ -28,7 +28,7 @@ class SearchDevicesHandlerImpl: NSObject, FlutterStreamHandler {
         let cidr = wireless.getInternalWifiCIDR()
         
         
-        print("ssid:\(ssid),bssid:\(bssid),cidr:\(cidr)")
+        print("ssid:\(ssid),bssid:\(bssid),cidr:\(cidr),ip:\(wireless.getInternalWifiIpString())")
         
         let scanHostsAsyncTask = ScanHostsAsyncTask(eventSink: eventSink)
         if let ipv4 = wireless.getInternalWifiIpAddress(),
