@@ -1,4 +1,5 @@
 PODS:
+  - CocoaAsyncSocket (7.6.5)
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
@@ -6,6 +7,7 @@ PODS:
     - Flutter
   - ReachabilitySwift (5.0.0)
   - wifi_detection (0.0.1):
+    - CocoaAsyncSocket
     - Flutter
     - ReachabilitySwift
 
@@ -17,6 +19,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - CocoaAsyncSocket
     - ReachabilitySwift
 
 EXTERNAL SOURCES:
@@ -30,11 +33,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/wifi_detection/ios"
 
 SPEC CHECKSUMS:
+  CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 13825b8a9334a850581300559b8839134b124670
   permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  wifi_detection: 66a27f9d7a357fdc98ddf958a0a339bffed2b88b
+  wifi_detection: 9e86d62db9a22a3665fed0866762e405de78da86
 
 PODFILE CHECKSUM: bae2615e92da2a48bc34aaa862eb8d2b10bf43c5
 

@@ -16,6 +16,8 @@ A new Flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'ReachabilitySwift'
+#  s.dependency 'TOSMBClient'
+  s.dependency 'CocoaAsyncSocket'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.

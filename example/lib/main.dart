@@ -76,6 +76,13 @@ class _MyAppState extends State<MyApp> {
         body: Center(
           child: Text('Running on: $_platformVersion\n'),
         ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            final platformVersion = await _wifiDetectionPlugin.getPlatformVersion() ?? 'Unknown platform version';
+            print("platformVersion:${platformVersion}");
+          },
+          child: Icon(Icons.start),
+        ),
       ),
     );
   }

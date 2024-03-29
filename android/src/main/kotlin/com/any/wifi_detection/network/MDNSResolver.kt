@@ -1,5 +1,6 @@
 package com.any.wifi_detection.network
 
+import android.util.Log
 import java.io.ByteArrayOutputStream
 import java.io.Closeable
 import java.io.DataOutputStream

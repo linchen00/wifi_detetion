@@ -28,41 +28,35 @@ class ScanHostsRunnable{
     }
     
     func run() {
-
-        for i in start...stop {
-            // 将任务添加到串行队列中，确保按顺序执行
-            serialQueue.async {
-                let ipAddress = self.getIPAddress(index: i)
-                let pinger = try? SwiftyPing(host: ipAddress, configuration: PingConfiguration(interval:0,with: 10), queue: self.serialQueue)
-                
-                // 将当前任务添加到 DispatchGroup 中
-//                
-//                
-                pinger?.observer = { (response:PingResponse) in
-                    print("ipAddress:\(ipAddress),duration:\(response.duration),error:\(response.error)")
-                    
-                    // 任务完成后离开 DispatchGroup
-//                    self.group.leave()
-                }
-                
-                pinger?.targetCount = 1
-//                self.group.enter()
-                try? pinger?.startPinging()
-                
-//                self.group.enter()
+//        var ipList = [String]()
+//        
+//        for i in start...stop {
+//            // 将任务添加到串行队列中，确保按顺序执行
+//            serialQueue.async {
 //                let ipAddress = self.getIPAddress(index: i)
-//                print("ipAddress:\(ipAddress)")
-//                if ipAddress != "192.168.1.5"{
+//                let pinger = try? SwiftyPing(host: ipAddress, configuration: PingConfiguration(interval:0,with: 10), queue: DispatchQueue.global())
+//                self.group.enter()
+//                pinger?.observer = { (response:PingResponse) in
+//                    if !ipList.contains(ipAddress) && response.error == nil {
+//                        ipList.append(ipAddress)
+//                        
+//                        print("start:\(self.start),ipListCount:\(ipList.count)")
+//                        // 任务完成后离开 DispatchGroup
+//                    }
 //                    self.group.leave()
+//
 //                }
-                
-
-            }
-        }
-
-        // 等待所有任务完成
-        self.group.wait()
-        print("asd")
+//                
+//                pinger?.targetCount = 1
+//                
+//                try? pinger?.startPinging()
+//
+//            }
+//        }
+//
+//        // 等待所有任务完成
+//        self.group.wait()
+        
         
         
 
