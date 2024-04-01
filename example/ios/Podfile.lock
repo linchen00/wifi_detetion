@@ -3,12 +3,16 @@ PODS:
   - Flutter (1.0.0)
   - integration_test (0.0.1):
     - Flutter
+  - MacFinder (1.2.0)
   - permission_handler_apple (9.3.0):
     - Flutter
+  - PlainPing (0.5.2)
   - ReachabilitySwift (5.0.0)
   - wifi_detection (0.0.1):
     - CocoaAsyncSocket
     - Flutter
+    - MacFinder
+    - PlainPing
     - ReachabilitySwift
 
 DEPENDENCIES:
@@ -20,6 +24,8 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - CocoaAsyncSocket
+    - MacFinder
+    - PlainPing
     - ReachabilitySwift
 
 EXTERNAL SOURCES:
@@ -36,9 +42,11 @@ SPEC CHECKSUMS:
   CocoaAsyncSocket: 065fd1e645c7abab64f7a6a2007a48038fdc6a99
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
   integration_test: 13825b8a9334a850581300559b8839134b124670
+  MacFinder: 2bd98a9633f6b25c03b0b2dce14cd7d3bfffde64
   permission_handler_apple: 036b856153a2b1f61f21030ff725f3e6fece2b78
+  PlainPing: 41fb93099deb2f5ddbc534a934eb3bf07522d437
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  wifi_detection: 9e86d62db9a22a3665fed0866762e405de78da86
+  wifi_detection: bda7a0920846f8ad6f9066599caae8a5fb325dd8
 
 PODFILE CHECKSUM: bae2615e92da2a48bc34aaa862eb8d2b10bf43c5
 

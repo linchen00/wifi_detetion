@@ -18,6 +18,8 @@ A new Flutter plugin project.
   s.dependency 'ReachabilitySwift'
 #  s.dependency 'TOSMBClient'
   s.dependency 'CocoaAsyncSocket'
+  s.dependency 'PlainPing'
+  s.dependency 'MacFinder'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.

@@ -30,12 +30,12 @@ class SearchDevicesHandlerImpl: NSObject, FlutterStreamHandler {
         
         print("ssid:\(ssid),bssid:\(bssid),cidr:\(cidr),ip:\(wireless.getInternalWifiIpString())")
         
-//        let scanHostsAsyncTask = ScanHostsAsyncTask(eventSink: eventSink)
-//        if let ipv4 = wireless.getInternalWifiIpAddress(),
-//           let cidr = wireless.getInternalWifiCIDR(){
-//            print("ipv4: \(ipv4), cidr: \(cidr)")
-//            scanHostsAsyncTask.scanHosts(ipv4: ipv4, cidr: cidr, timeout: 5000)
-//        }
+        let scanHostsAsyncTask = ScanHostsAsyncTask(eventSink: eventSink)
+        if let ipv4 = wireless.getInternalWifiIpAddress(),
+           let cidr = wireless.getInternalWifiCIDR(){
+            print("ipv4: \(ipv4), cidr: \(cidr)")
+            scanHostsAsyncTask.scanHosts(ipv4: ipv4, cidr: cidr, timeout: 5000)
+        }
         
         
         
