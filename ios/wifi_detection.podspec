@@ -20,6 +20,7 @@ A new Flutter plugin project.
   s.dependency 'CocoaAsyncSocket'
   s.dependency 'PlainPing'
   s.dependency 'MacFinder'
+  s.dependency 'PromiseKit'
   s.platform = :ios, '11.0'
 
   # Flutter.framework does not contain a i386 slice.

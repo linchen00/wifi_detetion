@@ -8,6 +8,7 @@
 import Foundation
 import PlainPing
 import MacFinder
+import PromiseKit
 
 class PingHelper {
     let ip:String;
@@ -19,44 +20,46 @@ class PingHelper {
         self.ip = ip
         self.timeout = timeout
     }
-    
-    func start()->Bool{
 
-        print("start:\(self.ip)")
-        // 在主线程中执行异步任务
-        let queue = DispatchQueue.global()
-        let semaphore = DispatchSemaphore(value: 0)
-        queue.async {
-            PlainPing.ping(self.ip, withTimeout: TimeInterval(self.timeout)) { elapsedTimeMs, error in
-                
-                self.isOk = error == nil
-                if let latency = elapsedTimeMs {
-                    print("\(self.ip) latency (ms): \(latency)")
-                }
-                if let error = error {
-                    print("error: \(error.localizedDescription)")
-                }
-                semaphore.signal()
-                
-            }
-            // 在当前线程启动运行循环
-            let runLoop = RunLoop.current
-            runLoop.run()
-            
-        }
-        semaphore.wait()
-        
-        if !self.isOk &&  (MacFinder.ip2mac(ip) != nil)  {
-            self.isOk = true
-            
-        }
     
-        
-       
-        print("finish:\(self.ip)")
-        return self.isOk
-        
-        
-        
+    func start()->Promise<String?>{
+        // 在主线程中执行异步任务
+        return  Promise<String?>{seal in
+            
+            if let pinger = try? SwiftyPing(ipv4Address: self.ip, config: PingConfiguration(interval: 0.5, with: TimeInterval(timeout)), queue: DispatchQueue.global()){
+                pinger.finished = { (pingResult) in
+                    let responses = pinger.responses
+                    self.isOk = responses.contains { PingResponse in
+                        return  PingResponse.error==nil
+                    }
+                    
+                    if !self.isOk && (MacFinder.ip2mac(self.ip) != nil){
+                        self.isOk = true
+                    }
+                    if self.isOk {
+                        seal.fulfill(self.ip)
+                    }else{
+                        seal.fulfill(nil)
+                    }
+                    
+                }
+                pinger.targetCount = 1
+                do {
+                    try pinger.startPinging()
+                } catch {
+                    seal.fulfill(nil)
+                }
+            }else{
+                if (MacFinder.ip2mac(ip) != nil)  {
+                    self.isOk = true
+                }
+                if self.isOk {
+                    seal.fulfill(self.ip)
+                }else{
+                    seal.fulfill(nil)
+                }
+            }
+            
+        } 
     }
 }

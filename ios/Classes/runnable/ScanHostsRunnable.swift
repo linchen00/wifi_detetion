@@ -8,6 +8,7 @@
 import Foundation
 import Network
 import PlainPing
+import PromiseKit
 
 
 class ScanHostsRunnable{
@@ -29,13 +30,22 @@ class ScanHostsRunnable{
     }
     
     func run() {
-        
-        var ipList = [String]()
+        var promises:[Promise<String?>] = []
         
         for i in start...stop {
             let ipAddress = self.getIPAddress(index: i)
-            print("ipAddress:\(ipAddress)");
+            let pingHelper =  PingHelper(ip: ipAddress)
+            promises.append(pingHelper.start())
+        
         }
+        
+        when(fulfilled: promises).done { results in
+            let filteredArray:[String] = results.compactMap { $0 }
+            print("所有的Promise任务执行完毕，结果列表为：", filteredArray)
+        }.catch { error in
+            print("发生错误：", error)
+        }
+ 
     }
     
     
