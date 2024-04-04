@@ -7,45 +7,30 @@
 
 import Foundation
 import Network
-import PlainPing
-import PromiseKit
 
 
 class ScanHostsRunnable{
     let start :Int
     let stop :Int
-    let timeout :Int
+    let timeout :TimeInterval
     
-    // 创建一个 DispatchGroup 对象
-    let group = DispatchGroup()
-
-    // 创建一个串行队列
-    let serialQueue = DispatchQueue(label: "com.example.ping.serialQueue")
-    
-    
-    init(start: Int, stop: Int, timeout: Int) {
+    init(start: Int, stop: Int, timeout: TimeInterval) {
         self.start = start
         self.stop = stop
         self.timeout = timeout
     }
     
-    func run() {
-        var promises:[Promise<String?>] = []
+    func run()async -> [String] {
+        var ipList:[String] = []
         
         for i in start...stop {
             let ipAddress = self.getIPAddress(index: i)
-            let pingHelper =  PingHelper(ip: ipAddress)
-            promises.append(pingHelper.start())
-        
+            let pingHelper =  PingHelper(ip: ipAddress,timeout: TimeInterval(1))
+            if let test = try? await pingHelper.start() {
+                ipList.append(test)
+            }
         }
-        
-        when(fulfilled: promises).done { results in
-            let filteredArray:[String] = results.compactMap { $0 }
-            print("所有的Promise任务执行完毕，结果列表为：", filteredArray)
-        }.catch { error in
-            print("发生错误：", error)
-        }
- 
+        return ipList
     }
     
     

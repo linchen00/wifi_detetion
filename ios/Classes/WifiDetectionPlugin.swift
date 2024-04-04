@@ -1,6 +1,5 @@
 import Flutter
 import UIKit
-import PlainPing
 
 public class WifiDetectionPlugin: NSObject, FlutterPlugin {
     public static func register(with registrar: FlutterPluginRegistrar) {

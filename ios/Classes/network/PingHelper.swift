@@ -6,60 +6,50 @@
 //
 
 import Foundation
-import PlainPing
 import MacFinder
-import PromiseKit
 
 class PingHelper {
     let ip:String;
-    let timeout:Int;
+    let timeout:TimeInterval;
 
-    var isOk:Bool = false
+    private var isOk:Bool = false
 
-    init(ip: String, timeout: Int = 3) {
+    init(ip: String, timeout: TimeInterval = TimeInterval(3)) {
         self.ip = ip
         self.timeout = timeout
     }
-
     
-    func start()->Promise<String?>{
-        // 在主线程中执行异步任务
-        return  Promise<String?>{seal in
+    func  start () async throws -> String? {
+        
+        var isSuccess:Bool? = try? await withUnsafeThrowingContinuation({ cont in
             
-            if let pinger = try? SwiftyPing(ipv4Address: self.ip, config: PingConfiguration(interval: 0.5, with: TimeInterval(timeout)), queue: DispatchQueue.global()){
+            if let pinger = try? SwiftyPing(ipv4Address: self.ip, config: PingConfiguration(interval: 0.5, with: timeout), queue: DispatchQueue.global()){
                 pinger.finished = { (pingResult) in
+                    
                     let responses = pinger.responses
-                    self.isOk = responses.contains { PingResponse in
+                    let isSuccess = responses.contains { PingResponse in
                         return  PingResponse.error==nil
                     }
-                    
-                    if !self.isOk && (MacFinder.ip2mac(self.ip) != nil){
-                        self.isOk = true
-                    }
-                    if self.isOk {
-                        seal.fulfill(self.ip)
-                    }else{
-                        seal.fulfill(nil)
-                    }
-                    
+                    cont.resume(returning: isSuccess)
                 }
                 pinger.targetCount = 1
                 do {
                     try pinger.startPinging()
                 } catch {
-                    seal.fulfill(nil)
+                    cont.resume(returning: false)
                 }
             }else{
-                if (MacFinder.ip2mac(ip) != nil)  {
-                    self.isOk = true
-                }
-                if self.isOk {
-                    seal.fulfill(self.ip)
-                }else{
-                    seal.fulfill(nil)
-                }
+                cont.resume(returning: false)
             }
             
-        } 
+        })
+        if (isSuccess != true) && (MacFinder.ip2mac(self.ip) != nil){
+            isSuccess = true
+        }
+        if (isSuccess == true) {
+            return self.ip
+        }else{
+            return nil
+        }
     }
 }
