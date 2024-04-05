@@ -16,7 +16,7 @@ A new Flutter plugin project.
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
   s.dependency 'ReachabilitySwift'
-#  s.dependency 'TOSMBClient'
+ s.dependency 'TOSMBClient'
   s.dependency 'CocoaAsyncSocket'
   s.dependency 'MacFinder'
   s.platform = :ios, '13.0'

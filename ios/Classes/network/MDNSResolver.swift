@@ -1,60 +1,74 @@
 //
-//  NetworkTool.swift
+//  MDNSResolver.swift
 //  wifi_detection
 //
-//  Created by arthur on 2024/3/28.
+//  Created by arthur on 2024/4/5.
 //
 
 import Foundation
 import CocoaAsyncSocket
-import Network
 
-
-class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
-    
-    let udpTimeOut:TimeInterval = TimeInterval(1);
+class MDNSResolver: NSObject,Resolver {
     let mdnsIP:String = "224.0.0.251";
-
     let mdnsPort:UInt16 = 5353;
-    
-    let group = DispatchGroup()
-    /// UDP
-    private lazy var udp: GCDAsyncUdpSocket = {
+    private lazy var socket: GCDAsyncUdpSocket = {
         return GCDAsyncUdpSocket(delegate: self, delegateQueue: .main)
-        
     }()
+    private var continuation: UnsafeContinuation<String?, any Error>?
+    private var timeoutTask: DispatchWorkItem?
     
-    /// 指定设备发送广播
-    func udpBroadcast(ip: String) {
-        self.udpDefalut()
-        self.boardDeviceInfo(ip: ip)
+    private let timeout:TimeInterval
+    init(timeout: TimeInterval) {
+        self.timeout = timeout
     }
     
-    /// UDP 默认设置
-    func udpDefalut() {
+
+    func resolve(ip: String) async -> String? {
+    
+        let name:String? = try? await withUnsafeThrowingContinuation { cont in
+            
+            // 设定超时时间
+            let deadline = DispatchTime.now() + self.timeout
+            // 创建一个延迟操作来检查超时
+            self.timeoutTask = DispatchWorkItem {
+                // 如果超时，取消 continuation 并返回 nil
+                cont.resume(returning: nil)
+            }
+            
+            DispatchQueue.global().asyncAfter(deadline: deadline, execute: self.timeoutTask!)
+            
+            do {
+                try self.socket.enableReusePort(true)
+                try self.socket.bind(toPort: getRandomPort())
+                try self.socket.enableBroadcast(true)
+                try self.socket.joinMulticastGroup(mdnsIP)
+                try self.socket.beginReceiving()
+            } catch {
+                cont.resume(returning: nil)
+                self.timeoutTask?.cancel()
+            }
+            
+            if let requestID = calculateRequestID(ip: ip){
+                let data = dnsRequest(id: requestID, name: reverseName(name: ip)) //得发送data才能得到回应，这个根据交互方案传值
+                self.socket.send(Data(data), toHost: mdnsIP, port: mdnsPort, withTimeout: self.timeout, tag: 123)
+                continuation = cont
+            }else{
+                cont.resume(returning: nil)
+                self.timeoutTask?.cancel()
+            }
+        }
         
-        do {
-            try self.udp.enableReusePort(true)
-            try self.udp.bind(toPort: 4605)
-            try self.udp.enableBroadcast(true)
-            try self.udp.joinMulticastGroup(mdnsIP)
-            try self.udp.beginReceiving()
-        } catch let error {
-            print("udp失败\(error)")
-        }
+        return name
+
+    }
+    private func getRandomPort() -> UInt16 {
+        let lowerBound: Int = 5354
+        let upperBound: Int = 65535
+        let port = Int.random(in: lowerBound..<upperBound)
+        return UInt16(port)
     }
     
-    /// deviceInfo
-    func boardDeviceInfo(ip: String) {
-        if let requestID = calculateRequestID(ip: ip){
-            let data = dnsRequest(id: requestID, name: reverseName(name: ip)) //得发送data才能得到回应，这个根据交互方案传值
-            self.udp.send(Data(data), toHost: mdnsIP, port: mdnsPort, withTimeout: self.udpTimeOut, tag: 123)
-        }else {
-            return
-        }
-    }
-    
-    func calculateRequestID(ip:String ) -> Int?{
+    private func calculateRequestID(ip:String ) -> Int?{
         let addrParts = ip.split(separator: ".").compactMap { Int($0) }
         
         guard addrParts.count == 4 else {
@@ -64,7 +78,7 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
         return requestID;
     }
 
-    func reverseName(name:String) -> String{
+    private func reverseName(name:String) -> String{
         let addr = name.split(separator: ".")
         return "\(addr[3]).\(addr[2]).\(addr[1]).\(addr[0]).in-addr.arpa";
     }
@@ -72,7 +86,7 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
     
     
     
-    func dnsRequest(id: Int, name: String) -> [UInt8] {
+    private func dnsRequest(id: Int, name: String) -> [UInt8] {
         var byteArray = [UInt8]()
         
         // ID
@@ -98,7 +112,7 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
         return byteArray
     }
     
-    func decodeName( bytes:[UInt8],offset :Int,length :Int) ->String?{
+    private func decodeName( bytes:[UInt8],offset :Int,length :Int) ->String?{
         
         var name:String = ""
         
@@ -123,23 +137,17 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
         
         
     }
-    
-    // 广播
-    func udpSocket(_ sock: GCDAsyncUdpSocket, didSendDataWithTag tag: Int) {
-        print("Did send DNS request")
-    }
+
+}
+
+extension MDNSResolver: GCDAsyncUdpSocketDelegate{
     
     func udpSocket(_ sock: GCDAsyncUdpSocket, didReceive data: Data, fromAddress address: Data, withFilterContext filterContext: Any?) {
         // 处理接收到的 DNS 响应消息
-        
         let ip = GCDAsyncUdpSocket.host(fromAddress: address)!
-        let port = GCDAsyncUdpSocket.port(fromAddress: address)
-        
-        print(ip, port)
         
         let responseBytes = [UInt8](data)
         if let requestID = calculateRequestID(ip: ip){
-            
             let requestBytes = dnsRequest(id: requestID, name: reverseName(name: ip)) //得发送data才能得到回应，这个根据交互方案传值
             if(responseBytes[0] != requestBytes[0]) && (responseBytes[1] != requestBytes[1]){
                 return
@@ -153,13 +161,18 @@ class NetworkTool: NSObject, GCDAsyncUdpSocketDelegate {
             
             let name = decodeName(bytes: responseBytes, offset: offset, length: responseBytes.count-offset)
             print("name:\(String(describing: name?.split(separator: ".")))")
+            continuation?.resume(returning: name)
+            self.timeoutTask?.cancel()
+            try? sock.leaveMulticastGroup(mdnsIP)
+            sock.close()
+            print(sock.isClosed())
+            print(socket.isClosed())
             
-//            try? sock.leaveMulticastGroup(mdnsIP)
-//            sock.close()
             
         }else{
-            print("parse fail")
+            continuation?.resume(returning: nil)
+            self.timeoutTask?.cancel()
         }
     }
-
+    
 }

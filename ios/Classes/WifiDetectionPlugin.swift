@@ -15,6 +15,14 @@ public class WifiDetectionPlugin: NSObject, FlutterPlugin {
         switch call.method {
         case "getPlatformVersion":
             result("iOS " + UIDevice.current.systemVersion)
+            Task{
+               let name1 = await MDNSResolver(timeout: TimeInterval(5)).resolve(ip: "192.168.0.123")
+                print("name1:\(name1)")
+            }
+            
+           let name =  NetBIOSResolver().resolve(ip: "192.168.0.253")
+            print("name:\(name)")
+            
         default:
             result(FlutterMethodNotImplemented)
         }

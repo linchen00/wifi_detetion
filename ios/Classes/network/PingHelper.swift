@@ -25,7 +25,6 @@ class PingHelper {
             
             if let pinger = try? SwiftyPing(ipv4Address: self.ip, config: PingConfiguration(interval: 0.5, with: timeout), queue: DispatchQueue.global()){
                 pinger.finished = { (pingResult) in
-                    
                     let responses = pinger.responses
                     let isSuccess = responses.contains { PingResponse in
                         return  PingResponse.error==nil

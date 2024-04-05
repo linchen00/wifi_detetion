@@ -40,11 +40,6 @@ class SearchDevicesHandlerImpl: NSObject, FlutterStreamHandler {
             
         }
         
-        
-        
-        print("onListen......")
-
-        
         self.timer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true, block: { _ in
             let dateFormat = DateFormatter()
             dateFormat.dateFormat = "HH:mm:ss"
